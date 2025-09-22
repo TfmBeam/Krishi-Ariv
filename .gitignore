@@ -1,0 +1,81 @@
+# Python-specific
+# ========================
+_pycache_/
+*.py[co]
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-arg.txt
+.tox/
+.coverage
+.coverage.*
+.hypothesis/
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+.vscode/
+.idea/
+
+# Your project-specific
+# ========================
+# Directory for your PDF data
+data/
+
+# Environment variables file
+.env
+
+# Supabase generated files
+supabase-sql/
+
+# Log files
+*.log
+!logs/.gitkeep
+
+# Any temporary files created by your RAG/LLM scripts
+tmp/
+*.tmp
+
+# Files for the predictive ML model
+# Uncomment if you start training/using a model
+models/
+# checkpoints/
+# datasets/
+# Flutter/Dart build files
+# Flutter/Dart build files
+/build/
+/android/
+/ios/
+/*.iml
+*.lock
+*.log
+*.so
+*.zip
+*.apk
+*.aar
+*.jar
+# Flutter/Dart tool files
+.dart_tool/
+.packages
+.pub-cache/
+.build/
+android/build.gradle.kts
+android/app/build.gradle.kts
+android/settings.gradle.kts
+android/gradlew
+android/gradlew.bat
+android/local.properties
+android/key.properties
+android/app/src/main/kotlin/com/example/krishi_mithra/GeneratedPluginRegistrant.kt
+android/app/src/main/kotlin/com/example/krishi_mithra/MainActivity.kt
+android/app/src/main/kotlin/com/example/krishi_mithra/MainActivity.kt
+*.so
+*.zip
+*.aar
+*.jar
+*.apk
+
+
+# macOS generated files
+macos/Flutter/GeneratedPluginRegistrant.swift

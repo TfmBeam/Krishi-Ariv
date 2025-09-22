@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+langchain
+sentence-transformers
+supabase
+psycopg2-binary
+python-dotenv
+pypdf
+llama-cpp-python
+langdetect

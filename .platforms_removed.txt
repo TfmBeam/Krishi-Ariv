@@ -1,0 +1,1 @@
+macos/, windows/, and ios/ folders removed as requested. Project now targets only Android.

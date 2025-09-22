@@ -1,0 +1,19 @@
+To remove unused platforms from your Flutter project:
+
+1. Delete the following folders from your project root:
+   - macos/
+   - windows/
+   - ios/ (if not building for iOS)
+
+2. You can do this in VS Code's file explorer or with these PowerShell commands:
+
+   Remove-Item -Recurse -Force .\macos
+   Remove-Item -Recurse -Force .\windows
+   Remove-Item -Recurse -Force .\ios
+
+3. After deleting, run:
+
+   flutter clean
+   flutter pub get
+
+Your project will now only target Android. You can ignore plugin warnings for other platforms.
