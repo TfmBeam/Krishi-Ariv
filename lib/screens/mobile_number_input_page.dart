@@ -1,0 +1,306 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'dart:math';
+import 'homepage.dart';
+
+class MobileNumberInputPage extends StatefulWidget {
+  const MobileNumberInputPage({super.key});
+
+  @override
+  State<MobileNumberInputPage> createState() => _MobileNumberInputPageState();
+}
+
+class _MobileNumberInputPageState extends State<MobileNumberInputPage> {
+  final TextEditingController _mobileController = TextEditingController();
+
+  @override
+  void dispose() {
+    _mobileController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back,
+            color: Color(0xFF6B8E23),
+            size: 28,
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.all(Radius.circular(25)),
+        ),
+        child: Column(
+          children: [
+            // Top Green Section with curved bottom (same as login page)
+            Expanded(
+              flex: 4,
+              child: ClipPath(
+                clipper: WaveClipper(),
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF6B8E23), // Olive green
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(25),
+                      topRight: Radius.circular(25),
+                    ),
+                  ),
+                  child: const Center(
+                    child: FloralDrawing(),
+                  ),
+                ),
+              ),
+            ),
+            // Bottom White Section
+            Expanded(
+              flex: 6,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Enter Mobile Number Text
+                    const Text(
+                      'Enter Mobile Number',
+                      style: TextStyle(
+                        color: Color(0xFF6B8E23),
+                        fontSize: 24,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+                    // Phone Icon and Input Field
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: const Color(0xFF6B8E23),
+                            width: 2,
+                          ),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.phone,
+                            color: Color(0xFF6B8E23),
+                            size: 24,
+                          ),
+                          const SizedBox(width: 15),
+                          Expanded(
+                            child: TextField(
+                              controller: _mobileController,
+                              keyboardType: TextInputType.phone,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                                LengthLimitingTextInputFormatter(10),
+                              ],
+                              decoration: const InputDecoration(
+                                hintText: 'Enter your mobile number',
+                                hintStyle: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 16,
+                                ),
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Spacer(),
+                    // Continue Button
+                    Container(
+                      width: double.infinity,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF6B8E23),
+                        borderRadius: BorderRadius.circular(28),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 10,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(28),
+                          onTap: () {
+                            final mobileNumber = _mobileController.text.trim();
+                            if (mobileNumber.isNotEmpty) {
+                              print('Mobile Number: $mobileNumber');
+                              // Navigate to HomePage (chat page)
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const HomePage(),
+                                ),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Please enter a mobile number'),
+                                  backgroundColor: Color(0xFF6B8E23),
+                                ),
+                              );
+                            }
+                          },
+                          child: const Center(
+                            child: Text(
+                              'Continue',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Custom Clipper for curved bottom edge (same as login page)
+class WaveClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    
+    // Start from top-left
+    path.moveTo(0, 0);
+    
+    // Go to top-right
+    path.lineTo(size.width, 0);
+    
+    // Go to bottom-right with slight curve
+    path.quadraticBezierTo(
+      size.width * 0.9,
+      size.height * 0.7,
+      size.width * 0.7,
+      size.height * 0.9,
+    );
+    
+    // Create the main wave curve
+    path.quadraticBezierTo(
+      size.width * 0.5,
+      size.height * 1.1,
+      size.width * 0.3,
+      size.height * 0.9,
+    );
+    
+    // Complete the curve to bottom-left
+    path.quadraticBezierTo(
+      size.width * 0.1,
+      size.height * 0.7,
+      0,
+      size.height * 0.85,
+    );
+    
+    // Close the path
+    path.close();
+    
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
+}
+
+// Floral Drawing Widget (same as login page)
+class FloralDrawing extends StatelessWidget {
+  const FloralDrawing({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      size: const Size(120, 120),
+      painter: FloralPainter(),
+    );
+  }
+}
+
+class FloralPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3;
+
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width * 0.3;
+
+    // Draw petals around the center
+    for (int i = 0; i < 6; i++) {
+      final angle = (i * 2 * pi) / 6;
+      final petalCenter = Offset(
+        center.dx + radius * 0.7 * cos(angle - pi / 2),
+        center.dy + radius * 0.7 * sin(angle - pi / 2),
+      );
+      
+      // Draw petal as an oval
+      canvas.drawOval(
+        Rect.fromCenter(
+          center: petalCenter,
+          width: radius * 0.6,
+          height: radius * 0.8,
+        ),
+        paint,
+      );
+    }
+
+    // Draw center circle
+    canvas.drawCircle(center, radius * 0.2, paint);
+
+    // Draw stem
+    canvas.drawLine(
+      Offset(center.dx, center.dy + radius * 0.5),
+      Offset(center.dx, center.dy + radius * 1.2),
+      paint,
+    );
+
+    // Draw leaves
+    final leaf1 = Offset(center.dx - radius * 0.3, center.dy + radius * 0.8);
+    final leaf2 = Offset(center.dx + radius * 0.3, center.dy + radius * 0.8);
+    
+    canvas.drawOval(
+      Rect.fromCenter(center: leaf1, width: radius * 0.4, height: radius * 0.3),
+      paint,
+    );
+    canvas.drawOval(
+      Rect.fromCenter(center: leaf2, width: radius * 0.4, height: radius * 0.3),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
+}

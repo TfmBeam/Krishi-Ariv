@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/homepage.dart';
+import 'screens/login_page.dart';
 
 void main() {
   runApp(const KrishiMithraApp());
@@ -18,7 +18,7 @@ class KrishiMithraApp extends StatelessWidget {
         fontFamily: 'Roboto',
         useMaterial3: true,
       ),
-      home: const HomePage(),
+      home: const LoginPage(),
       debugShowCheckedModeBanner: false,
     );
   }

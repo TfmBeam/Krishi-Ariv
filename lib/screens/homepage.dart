@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'notifications_page.dart';
 import 'profile_page.dart';
 import 'voice_recording_page.dart';
+
+// API endpoint constant
+const String apiUrl = "http://172.18.67.159:8000/query";
 
 class ChatMessage {
   final String text;
@@ -30,7 +35,9 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController _queryController = TextEditingController();
   final String userName = "John"; // This should come from user authentication
   final ScrollController _scrollController = ScrollController();
-  final List<ChatMessage> _messages = [];
+  final List<ChatMessage> _legacyMessages = [];
+  final List<Map<String, String>> _chatMessages = []; // New chat message list as per requirements
+  final List<Map<String, dynamic>> _messages = []; // Gemini-style chat messages
   bool _isLoading = false;
 
   @override
@@ -79,7 +86,7 @@ class _HomePageState extends State<HomePage> {
 
   void _addMessageToChat(String text, bool isUser, [String? imagePath]) {
     setState(() {
-      _messages.add(ChatMessage(
+      _legacyMessages.add(ChatMessage(
         text: text,
         isUser: isUser,
         imagePath: imagePath,
@@ -109,22 +116,46 @@ class _HomePageState extends State<HomePage> {
     if (_queryController.text.trim().isEmpty) return;
 
     final userMessage = _queryController.text.trim();
-    _queryController.clear();
     
-    _addMessageToChat(userMessage, true);
+    // Immediately add user message to _messages and clear input field
     setState(() {
+      _messages.add({"text": userMessage, "isUser": true});
       _isLoading = true;
     });
+    _queryController.clear();
+    _scrollToBottom();
 
     try {
-      // Simulate API call - replace with actual backend call
-      await Future.delayed(const Duration(seconds: 2));
-      
-      // Simulate AI response
-      final aiResponse = "Thank you for your question: \"$userMessage\". This is a simulated response from Krishi Mithra. In a real implementation, this would be processed by the backend AI system.";
-      _addMessageToChat(aiResponse, false);
+      // Make HTTP POST request to backend
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          'query': userMessage,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        // Parse the response
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        final aiResponse = responseData['response'] ?? responseData['answer'] ?? 'No response received';
+        
+        // Add AI response to _messages
+        setState(() {
+          _messages.add({"text": aiResponse, "isUser": false});
+        });
+        _scrollToBottom();
+      } else {
+        throw Exception('Failed to get response from server');
+      }
     } catch (e) {
-      _showError("An error occurred. Sorry, please try again.");
+      // Add error message to _messages
+      setState(() {
+        _messages.add({"text": "An error occurred. Sorry, please try again.", "isUser": false});
+      });
+      _scrollToBottom();
     } finally {
       setState(() {
         _isLoading = false;
@@ -230,7 +261,7 @@ class _HomePageState extends State<HomePage> {
               Expanded(
                 child: _messages.isEmpty
                     ? _buildWelcomeMessage()
-                    : _buildChatLog(),
+                    : _buildGeminiStyleChat(),
               ),
               
               // Input Bar
@@ -382,11 +413,86 @@ class _HomePageState extends State<HomePage> {
     return ListView.builder(
       controller: _scrollController,
       padding: const EdgeInsets.all(20.0),
+      itemCount: _legacyMessages.length,
+      itemBuilder: (context, index) {
+        final message = _legacyMessages[index];
+        return _buildChatBubble(message);
+      },
+    );
+  }
+
+  Widget _buildGeminiStyleChat() {
+    return ListView.builder(
+      controller: _scrollController,
+      padding: const EdgeInsets.all(20.0),
       itemCount: _messages.length,
       itemBuilder: (context, index) {
         final message = _messages[index];
-        return _buildChatBubble(message);
+        return _buildGeminiStyleBubble(
+          message['text'] as String,
+          message['isUser'] as bool,
+        );
       },
+    );
+  }
+
+  Widget _buildGeminiStyleBubble(String text, bool isUser) {
+    return Align(
+      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isUser 
+              ? const Color(0xFF648134).withOpacity(0.9)
+              : Colors.white.withOpacity(0.9),
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 5,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Text(
+          text,
+          style: TextStyle(
+            color: isUser ? Colors.white : Colors.black87,
+            fontSize: 16,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSimpleChatBubble(String text, bool isUser) {
+    return Align(
+      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isUser 
+              ? const Color(0xFF648134).withOpacity(0.9)
+              : Colors.white.withOpacity(0.9),
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 5,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Text(
+          text,
+          style: TextStyle(
+            color: isUser ? Colors.white : Colors.black87,
+            fontSize: 16,
+          ),
+        ),
+      ),
     );
   }
 
