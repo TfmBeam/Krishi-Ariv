@@ -1,4 +1,4 @@
-# Krishi Mithra - Agricultural Assistant App
+# Krishi Ariv - Agricultural Assistant App
 
 A Flutter mobile application designed to provide agricultural assistance and guidance to farmers in Kerala, India.
 
